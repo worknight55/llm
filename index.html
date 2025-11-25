@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Causal-R1: Full Project Proposal</title>
+    <style>
+        :root {
+            /* Apple/Google Inspired Palette */
+            --bg-body: #f5f5f7; /* Apple Light Gray */
+            --bg-card: #ffffff;
+            --text-primary: #1d1d1f; /* Almost Black */
+            --text-secondary: #86868b; /* Apple Grey Text */
+            
+            /* Accents - Clean & Professional */
+            --brand-blue: #0071e3; /* Apple Blue */
+            --brand-green: #34c759;
+            --brand-orange: #ff9500;
+            --brand-red: #ff3b30;
+            --brand-purple: #af52de;
+            
+            --border-light: #d2d2d7;
+            --border-subtle: #e5e5e5;
+            
+            /* Elevation */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 24px rgba(0,0,0,0.12);
+            
+            --radius: 18px; /* Slightly larger, softer corners */
+            --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased; /* Crisp text for Mac */
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* --- Typography Helpers --- */
+        h1, h2, h3 {
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+        
+        .section-header {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 60px auto;
+        }
+        
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .content-wrapper {
+            max-width: 1080px; /* Wider, cleaner layout */
+            width: 92%;
+            margin: 0 auto;
+        }
+
+        /* --- Section 1: Architecture (The Clean Dashboard) --- */
+        .diagram-section {
+            background-color: var(--bg-body);
+            padding: 80px 0;
+            min-height: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: var(--text-primary);
+            background: none;
+            -webkit-text-fill-color: initial;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .header-tags {
+            display: flex;
+            gap: 12px;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        
+        .tag-blue { background: #eef6ff; color: var(--brand-blue); }
+        .tag-green { background: #effcf3; color: var(--brand-green); }
+
+        /* Pipeline Grid */
+        .pipeline {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            position: relative;
+        }
+
+        @media (max-width: 1100px) {
+            .pipeline { grid-template-columns: 1fr; gap: 40px; }
+            .col::after { transform: rotate(90deg); right: 50%; top: auto; bottom: -30px; }
+        }
+
+        .col {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+        }
+
+        /* Subtle Arrow Connector */
+        .col:not(:last-child)::after {
+            content: "→";
+            position: absolute;
+            right: -18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--border-light);
+            font-size: 1.2rem;
+            font-family: monospace;
+        }
+        @media (max-width: 1100px) { .col:not(:last-child)::after { display: none; } }
+
+        .col-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* Clean Card Style */
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--border-light);
+        }
+
+        .card h3 { font-size: 0.95rem; margin-bottom: 4px; color: var(--text-primary); }
+        .card p { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.3; }
+
+        .mini-tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            background: #f5f5f7;
+            color: var(--text-secondary);
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+
+        /* Special Modules */
+        .card-cem {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fafafa;
+        }
+        
+        .matrix-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 6px; 
+            margin-top: 15px; 
+        }
+        .dot { 
+            width: 4px; 
+            height: 4px; 
+            background: var(--border-light); 
+            border-radius: 50%; 
+        }
+        .dot:nth-child(2), .dot:nth-child(5) { background: var(--brand-blue); }
+
+        .agent-container {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--brand-blue); /* Active Border */
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.05); /* Subtle blue glow */
+        }
+        
+        .agent-header {
+            font-size: 0.75rem;
+            color: var(--brand-blue);
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .module-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .module { 
+            flex: 1; 
+            background: #f5f5f7; 
+            padding: 8px; 
+            border-radius: 6px; 
+            font-size: 0.7rem; 
+            text-align: center; 
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+        }
+
+        .thinking-chain {
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: auto;
+            font-family: "SF Mono", "Menlo", monospace;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .thinking-chain span { color: var(--brand-orange); }
+
+        .reward-pill {
+            margin-top: 8px;
+            font-family: monospace;
+            background: #effcf3;
+            color: var(--brand-green);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            border: 1px solid rgba(52, 199, 89, 0.2);
+        }
+
+        .task-grid { display: grid; gap: 10px; flex: 1; }
+        .card-task { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 12px;
+        }
+        .task-icon { font-size: 1.2rem; opacity: 0.8; }
+
+
+        /* --- Section 2: Proposal Text (Bento/List Style) --- */
+        .proposal-section {
+            background-color: var(--bg-card);
+            padding: 100px 0;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .layer-list {
+            display: grid;
+            gap: 24px;
+        }
+
+        .layer-item {
+            display: grid;
+            grid-template-columns: 60px 1fr;
+            gap: 24px;
+            padding: 32px;
+            border-bottom: 1px solid var(--border-subtle);
+            align-items: flex-start;
+            transition: background 0.2s;
+        }
+        .layer-item:hover { background-color: #fafafa; }
+        .layer-item:last-child { border-bottom: none; }
+
+        .layer-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--border-light);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .layer-text h3 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .layer-text p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #424245;
+            margin-bottom: 12px;
+        }
+
+        .highlight-box {
+            background: #f5f5f7;
+            border-radius: var(--radius);
+            padding: 40px;
+            margin-top: 60px;
+            border: none;
+        }
+        .highlight-list li {
+            margin-bottom: 16px;
+            padding-left: 20px;
+            position: relative;
+            color: var(--text-primary);
+        }
+        .highlight-list li::before {
+            content: "•";
+            color: var(--brand-blue);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+            line-height: 1.2rem;
+        }
+
+        .why-care {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 500;
+            padding: 30px;
+            color: var(--text-primary);
+            background: #fff;
+        }
+
+
+        /* --- Section 3: Data Dashboard (Bento Box) --- */
+        .data-dashboard-section {
+            background-color: var(--bg-body);
+            padding: 100px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid transparent;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 180px;
+            position: static; /* Reset */
+            overflow: visible; /* Reset */
+        }
+        
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+        }
+        
+        .stat-card::before { display: none; } /* Reset previous style */
+
+        .stat-card h3 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Color accents for stats */
+        .stat-blue .stat-value { color: var(--brand-blue); }
+        .stat-green .stat-value { color: var(--brand-green); }
+        .stat-red .stat-value { color: var(--brand-red); }
+
+        /* --- Section 4: Resources (Simple Clean) --- */
+        .resources-section {
+            background-color: var(--bg-card);
+            padding: 100px 0;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .resource-card {
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius);
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .resource-card:hover {
+            border-color: var(--brand-blue);
+            background: #fbfbfd;
+        }
+
+        .resource-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .resource-desc {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--brand-orange);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diagram-section">
+        <div class="content-wrapper">
+            <header>
+                <div>
+                    <h1>Causal-R1</h1>
+                    <div class="subtitle">因果推理驱动的 AI 药物研发智能体架构</div>
+                </div>
+                <div class="header-tags">
+                    <div class="tag tag-blue">Stage: Post-Training</div>
+                    <div class="tag tag-green">Method: SFT + GRPO</div>
+                </div>
+            </header>
+
+            <div class="pipeline">
+                <div class="col">
+                    <div class="col-title">01. 数据基座 (Data)</div>
+                    <div class="source-group">
+                        <div class="card"><h3>UKB Biobank</h3><p>GWAS / eQTL / pQTL</p><div class="mini-tag">2700+ Phenotypes</div></div>
+                        <div class="card"><h3>RCT Papers</h3><p>186k+ Clinical Texts</p><div class="mini-tag">PICO / Outcomes</div></div>
+                        <div class="card"><h3>DrugBank</h3><p>Pharmacology Knowledge</p><div class="mini-tag">Targets / MoA</div></div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="col-title">02. 离线世界模型 (World Model)</div>
+                    <div class="card card-cem">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">🧬</div>
+                        <h3>Causal Evidence Matrix</h3>
+                        <p style="text-align:center;">预计算的 MR-PheWAS 全局因果字典</p>
+                        <div class="mini-tag">Target x Phenotype</div>
+                        <div class="matrix-grid"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="col-title">03. 核心智能体 (Causal-R1)</div>
+                    <div class="agent-container">
+                        <div class="agent-header">Base Model: Qwen2.5 </div>
+                        <div class="module-row">
+                            <div class="module">Causal Projector<br><span style="font-size:0.6rem;font-weight:normal;">CEM Vector → Embed</span></div>
+                            <div class="module">Knowledge Head<br><span style="font-size:0.6rem;font-weight:normal;">RAG Retrieval</span></div>
+                        </div>
+                        <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+                            <h2 style="color:var(--text-primary); font-size: 1.1rem;">Reasoning Agent</h2>
+                        </div>
+                        <div class="thinking-chain">
+                            <span>&lt;think&gt;</span><br>
+                            Conflict Analysis... Drug target effective (MR) but RCT failed... Checking bioavailability...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="col-title">04. 训练策略 (Training)</div>
+                    <div class="source-group">
+                        <div class="card" style="border-left: 3px solid var(--brand-blue);"><h3>Stage 1: SFT</h3><p>合成思维链微调</p><div class="mini-tag">Cold Start</div></div>
+                        <div class="card" style="flex: 1.5; border-left: 3px solid var(--brand-green);"><h3>Stage 2: GRPO</h3><p>基于规则的强化学习</p><div class="reward-pill">R<sub>total</sub> = R<sub>hard</sub> + R<sub>soft</sub></div><div class="mini-tag">Conflict Samples</div></div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="col-title">05. 下游应用 (Downstream)</div>
+                    <div class="task-grid">
+                        <div class="card card-task"><div><h3>Task A</h3><p>成功率预测</p></div><span class="task-icon">🎯</span></div>
+                        <div class="card card-task"><div><h3>Task B</h3><p>副作用预警</p></div><span class="task-icon">⚠️</span></div>
+                        <div class="card card-task"><div><h3>Task C</h3><p>矛盾证据调和</p></div><span class="task-icon">⚖️</span></div>
+                        <div class="card card-task"><div><h3>Task D</h3><p>老药新用挖掘</p></div><span class="task-icon">💊</span></div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align:center; color:var(--text-secondary); font-size:0.8rem; margin-top:20px;">Scroll down for details ▼</div>
+        </div>
+    </div>
+
+    <section class="proposal-section">
+        <div class="content-wrapper">
+            <div class="section-header">
+                <h2>Causal-R1 Proposal Concept</h2>
+                <p>基于五层结构的创新性阐述</p>
+            </div>
+
+            <div class="layer-list">
+                <div class="layer-item">
+                    <div class="layer-number">01</div>
+                    <div class="layer-text">
+                        <h3>做什么问题？为什么重要？</h3>
+                        <p>我们要解决的是：如何根据药物 + 适应症 + 临床试验文本，准确预测一项 RCT 是否会成功，这件事可以大幅降低药物研发风险。</p>
+                    </div>
+                </div>
+
+                <div class="layer-item">
+                    <div class="layer-number">02</div>
+                    <div class="layer-text">
+                        <h3>现状是什么？达到了什么效果？有什么不足？</h3>
+                        <p>目前已有方法（ML 或 LLM）可以利用试验结构化数据或 protocol 文本来预测临床试验成功率，并在管线预测中取得了一定准确度（AUC 大多 0.6–0.8）。</p>
+                        <p>但它们基本只做“相关性拟合”，不理解药物作用的因果机制，因此在遇到复杂疾病、分子靶点失效或试验结果冲突时普遍失效。</p>
+                        <p>更关键的，它们只能“读”试验文本，却无法“验证”推理是否与人类遗传证据一致，因此仍然容易幻觉、缺乏可信度。</p>
+                    </div>
+                </div>
+
+                <div class="layer-item">
+                    <div class="layer-number">03</div>
+                    <div class="layer-text">
+                        <h3>不足的原因是什么？如何克服？</h3>
+                        <p>根本原因是现有模型缺少一个真正的生物学世界模型，无法判断自己提出的机制解释是否符合基因–表型的因果规律。</p>
+                        <p>我们通过构建全基因组的 <strong>MR-PheWAS 因果证据矩阵 (CEM)</strong>，并把它作为强化学习奖励的“软因果验证器”，让模型在推理过程中强制对齐真实的遗传因果关系。</p>
+                    </div>
+                </div>
+
+                <div class="layer-item">
+                    <div class="layer-number">04</div>
+                    <div class="layer-text">
+                        <h3>改进后效果如何？可信度多少？</h3>
+                        <p>改进后，模型不仅能预测 RCT 是否成功，还能解释“为什么成功/失败”，并显著提升在冲突试验（文本 vs 遗传证据不一致）上的稳健性。</p>
+                        <p>可信度来自两个层面：一是模型推理链被 CEM 因果矩阵实时验证；二是奖励函数绑定历史 RCT 真实结果，因此预测更接近真实生物学。</p>
+                    </div>
+                </div>
+
+                <div class="layer-item">
+                    <div class="layer-number">05</div>
+                    <div class="layer-text">
+                        <h3>怎么实现的？（关键实现路径）</h3>
+                        <p><strong>构建世界模型：</strong>利用 UK Biobank、GWAS Catalog 等数据，构建横跨数千基因 × 数千表型的 MR-PheWAS 因果证据矩阵。</p>
+                        <p><strong>训练一个“会思考的”LLM：</strong>从 Qwen/Llama 等基座模型微调，让其在 &lt;think&gt; 中显式写出生物机制推理。</p>
+                        <p><strong>软因果验证 (Soft Verification)：</strong>从推理链中抽取机制假设（基因↑/↓ → 表型↑/↓），与 CEM 查表比对，给出正奖励或负奖励。</p>
+                        <p><strong>硬验证 (Hard Ground Truth)：</strong>模型最终预测结果与历史 RCT 成功/失败比对，形成硬奖励（+1/-1）。</p>
+                        <p><strong>GRPO 强化学习优化：</strong>将文本逻辑、因果一致性、药理知识一致性三个奖励合并，通过 GRPO 驱动模型学习“可信赖的临床推理”。</p>
+                        <p>最终得到一个会读 RCT、会查遗传因果、会解释失败原因的临床试验预测模型 Causal-R1。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3 style="margin-bottom: 20px;"> 为什么这个项目真正有创新性？</h3>
+                <ul class="highlight-list">
+                    <li>创新点 1：首次将“全基因组因果矩阵”作为世界模型，用来验证 LLM 的医学推理链。</li>
+                    <li>创新点 2：首次将 RCT 文本推理 + 遗传因果对齐 + 强化学习整合成统一框架。</li>
+                    <li>创新点 3：模型不仅“预测成功率”，还能“解释为什么成功/失败”，因此比黑箱模型更可信。</li>
+                </ul>
+            </div>
+
+            <div class="why-care">
+                 为什么有人会关心这个项目？<br>
+                <span style="font-size: 1rem; font-weight: normal; color: var(--text-secondary); display:block; margin-top:8px;">
+                    因为这可以直接降低药企研发风险、提高靶点选择成功率，并构建下一代“能够真正理解临床证据与遗传因果”的 AI 药物研发助手。
+                </span>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="data-dashboard-section">
+        <div class="content-wrapper">
+            <div class="section-header">
+                <h2>🧬 目前已有数据</h2>
+                <p>UK Biobank · RCT临床试验 · DrugBank药物数据库 · eQTL数据集成</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card stat-blue">
+                    <h3>📊 UKB参与者</h3>
+                    <div class="stat-value">~500K</div>
+                    <div class="stat-label">表型数据覆盖</div>
+                </div>
+                <div class="stat-card stat-green">
+                    <h3>🧪 RCT文章</h3>
+                    <div class="stat-value">186,961</div>
+                    <div class="stat-label">阳性: 114,977 | 阴性: 71,984</div>
+                </div>
+                <div class="stat-card stat-red">
+                    <h3>💊 DrugBank药物</h3>
+                    <div class="stat-value">4,393</div>
+                    <div class="stat-label">药物信息、靶点、适应症</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🔬 eQTL数据</h3>
+                    <div class="stat-value">GTEx</div>
+                    <div class="stat-label">基因表达数量性状位点</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🧬 基因型数据</h3>
+                    <div class="stat-value">25 Chr</div>
+                    <div class="stat-label">BED/BIM/FAM格式</div>
+                </div>
+                <div class="stat-card">
+                    <h3>📈 表型文件</h3>
+                    <div class="stat-value">27 GB</div>
+                    <div class="stat-label">utf8_ukb44064.csv</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🏥 表型数据</h3>
+                    <div class="stat-value">2700+</div>
+                    <div class="stat-label">筛选后 count≥100</div>
+                </div>
+                <div class="stat-card">
+                    <h3>📋 变量描述</h3>
+                    <div class="stat-value">JSON</div>
+                    <div class="stat-label">完整元数据注释</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="resources-section">
+        <div class="content-wrapper">
+            <div class="section-header">
+                <h2>🚀 目前需要的资源</h2>
+                <p>Hardware · Data Storage · Collaborations</p>
+            </div>
+
+            <div class="resource-grid">
+                <div class="resource-card">
+                    <div class="resource-title"><span class="status-dot" style="margin-right:10px;"></span>算力支持</div>
+                    <div class="resource-desc">
+                        需要高性能 GPU 集群进行模型微调（SFT）和强化学习训练（GRPO）。
+                        <br><br>
+                        <em style="color:var(--text-primary); font-style:normal; font-weight:500;">需要单机8卡测试训练2-4周，视模型训练收敛情况而定</em>
+                    </div>
+                </div>
+
+                <div class="resource-card">
+                    <div class="resource-title"><span class="status-dot" style="margin-right:10px;"></span>标注费用</div>
+                    <div class="resource-desc">
+                        需要调用闭源大模型对RCT数据进行标注。
+                        <br><br>
+                        <em style="color:var(--text-primary); font-style:normal; font-weight:500;">还需要16000元的标注费用</em>
+                    </div>
+                    
+                    <details style="margin-top: 15px; font-size: 0.8rem; color: var(--text-secondary); border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+                        <summary style="cursor: pointer; font-weight: 500; margin-bottom: 10px;">费用明细计算清单</summary>
+                        <div style="background: #f5f5f7; padding: 12px; border-radius: 6px; line-height: 1.6;">
+                            <div style="margin-bottom: 8px;"><strong>RCT文章处理:</strong></div>
+                            <div>• 490k x 0.005 = $2450 (分类/PICO提取) - GPT-o3-mini</div>
+                            <div>• 240k x 0.005 = $1200 (是否药物实验判断) - GPT-o3-mini</div>
+                            <div>• 240k x 0.005 = $1200 (实验阴阳性判断) - GPT-o3-mini</div>
+                            <div>• 240k x 0.005 = $1200 (适应症提取) - GPT-o3-mini</div>
+                            <div>• 240k x 0.040 = $9600 (调用更大的模型进行二次确认) - Gemini-2.5-flash</div>
+                            <div style="margin-top: 4px; color: var(--text-primary);">小计: $15,650 → 含损耗10%: <strong>$17,215</strong></div>
+                            
+                            <div style="margin-top: 12px; margin-bottom: 8px;"><strong>UKB表型处理:</strong></div>
+                            <div>• 20k x 0.12 = $2400 (UKB原始20000个表型注释提取) - Gemini-2.5-flash</div>
+                            <div style="margin-top: 4px; color: var(--text-primary);">含损耗10%: <strong>$2,640</strong></div>
+                            
+                            <div style="margin-top: 8px;">• 其他测试损耗: $1,500~$1,800</div>
+                            
+                            <div style="margin-top: 12px; border-top: 1px dashed #ccc; padding-top: 8px;"></div>
+                            <div>• 180k x 0.06 = $10,800 (UKB可计算的2700个表型筛选) - Gemini-2.5-flash</div>
+                            <div style="margin-top: 4px; color: var(--text-primary);">含损耗5%: <strong>$11,340</strong></div>
+                            
+                            <div style="margin-top: 12px; border-top: 1px solid #ccc; padding-top: 8px; font-weight: bold; color: var(--text-primary);">资金状况:</div>
+                            <div>总预算: 23,000 (10000+15000-2000)</div>
+                            <div>预估剩余: 23000-17215-2640-1800-1000x0.06 = $1,375</div>
+                            <div>当前余额: $1,800</div>
+
+                            <div>标注进度:  1,000 / 180,000</div>
+                            
+                            <div>1元=$0.7(之前DREAM是1元=$1)</div>
+                            <div>还需要计算：179,000 x 0.06 = $10740</div>
+                            <div style="color: var(--brand-red); margin-top: 5px;">需补充: $10740÷0.7=15342元</div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>
