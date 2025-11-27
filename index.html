@@ -544,6 +544,282 @@
         </div>
     </div>
 
+    <style>
+        .example-section {
+            background-color: #fff;
+            padding: 80px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .scenario-wrapper {
+            margin-bottom: 60px;
+        }
+        
+        .scenario-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .scenario-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-conflict { background: linear-gradient(135deg, #ff9500, #ff3b30); }
+        .badge-safety { background: linear-gradient(135deg, #ff3b30, #d70015); }
+        .badge-discovery { background: linear-gradient(135deg, #0071e3, #af52de); }
+
+        /* Main Container Style (Unified for all) */
+        .example-main-container {
+            display: flex;
+            gap: 40px;
+            align-items: stretch;
+            background: #fbfbfd;
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+        }
+        
+        .example-main-container:hover {
+            box-shadow: var(--shadow-md);
+            border-color: #d2d2d7;
+        }
+
+        @media (max-width: 900px) { .example-main-container { flex-direction: column; } }
+
+        /* Panels */
+        .input-panel { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+        
+        .data-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 18px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        
+        /* Card Status Colors */
+        .data-card.conflict { background: #fff5f5; border-left: 4px solid var(--brand-red); }
+        .data-card.support { background: #f2fcf5; border-left: 4px solid var(--brand-green); }
+        .data-card.neutral { background: #f5f5f7; border-left: 4px solid var(--text-secondary); }
+        .data-card.prediction { background: #fbf5ff; border-left: 4px solid var(--brand-purple); }
+
+        .data-label { font-size: 0.7rem; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+        .data-val { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+        .data-meta { font-size: 0.75rem; color: #666; margin-top: 4px; display:flex; justify-content:space-between; }
+
+        .inference-panel {
+            flex: 1.4;
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 24px;
+            color: #d4d4d4;
+            font-family: "SF Mono", "Menlo", monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            position: relative;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .inference-panel::before {
+            content: "Causal-R1 Terminal";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            background: #2d2d2d;
+            padding: 8px 16px;
+            font-size: 0.7rem;
+            color: #999;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        
+        .terminal-content { margin-top: 20px; flex: 1; }
+        
+        /* Syntax Highlighting */
+        .tag-think { color: #569cd6; opacity: 0.8; }
+        .text-thought { color: #858585; font-style: italic; }
+        .text-hl { color: #ce9178; font-weight: bold; } /* Entity/Emphasis */
+        .text-ok { color: #6a9955; font-weight: bold; } /* Success/Green */
+        .text-warn { color: #dcdcaa; font-weight: bold; } /* Warning/Yellow */
+        .text-err { color: #f44747; font-weight: bold; } /* Error/Red */
+        .text-res { color: #c586c0; font-weight: bold; } /* Result/Purple */
+
+        .arrow-divider { text-align: center; color: var(--border-light); font-size: 1.2rem; margin: -5px 0; }
+        
+        .final-conclusion {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+            color: #fff;
+            font-family: var(--font-family); /* Switch back to sans-serif for readability */
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+    </style>
+
+    <section class="example-section">
+        <div class="content-wrapper">
+            <div class="section-header">
+                <h2>核心机制演示：多场景推理</h2>
+                <p>Causal-R1 在矛盾调和、副作用预警与老药新用中的实际推理逻辑</p>
+            </div>
+
+            <div class="scenario-wrapper">
+                <div class="scenario-title">
+                    <span class="scenario-badge badge-conflict">Scenario A</span>
+                    矛盾证据调和 (Conflict Resolution)
+                </div>
+                <div class="example-main-container">
+                    <div class="input-panel">
+                        <div class="data-card neutral">
+                            <div class="data-label">QUERY INPUT</div>
+                            <div class="data-val">Drug: Torcetrapib → CVD</div>
+                            <div class="data-meta"><span>Target: CETP Gene</span><span>Action: Inhibitor</span></div>
+                        </div>
+                        <div class="arrow-divider">↓</div>
+                        <div class="data-card support">
+                            <div class="data-label">CEM EVIDENCE LOOKUP</div>
+                            <div class="data-val text-ok">Genetics: Strong Protective</div>
+                            <div class="data-meta"><span>P=1.2e-30</span><span>Beta=-0.21 (Risk↓)</span></div>
+                        </div>
+                        <div class="arrow-divider">+</div>
+                        <div class="data-card conflict">
+                            <div class="data-label">RCT GROUND TRUTH</div>
+                            <div class="data-val" style="color:var(--brand-red)">Clinical: FAILED</div>
+                            <div class="data-meta"><span>Outcome: Mortality ↑</span><span>Status: Terminated</span></div>
+                        </div>
+                    </div>
+
+                    <div class="inference-panel">
+                        <div class="terminal-content">
+                            <span class="tag-think">&lt;think&gt;</span><br>
+                            <span class="text-thought">
+                                1. <strong>Conflict Detect:</strong> Genetics implies <span class="text-ok">WORKS</span>, but RCT says <span class="text-err">FAIL</span>.<br>
+                                2. <strong>Reasoning Root Cause:</strong> Since the target (CETP) is genetically validated (CEM P&lt;5e-8), the failure is likely <strong>molecule-specific</strong>, not mechanism-specific.<br>
+                                3. <strong>Knowledge Retrieval (DrugBank):</strong> Querying Torcetrapib properties...<br>
+                                &nbsp;&nbsp;&nbsp;→ Found: "Off-target effect: Increases Aldosterone levels".<br>
+                                &nbsp;&nbsp;&nbsp;→ Logic: Aldosterone ↑ leads to Blood Pressure ↑, which increases CVD risk.<br>
+                                4. <strong>Synthesis:</strong> The off-target toxicity (BP↑) counteracted the lipid benefit.<br>
+                            </span>
+                            <span class="tag-think">&lt;/think&gt;</span>
+                            <div class="final-conclusion">
+                                <strong>结论：</strong>虽然靶点有效，但该药物因“脱靶毒性”（醛固酮升高）导致试验失败。这不是靶点的错，建议寻找结构更纯净的 CETP 抑制剂。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-wrapper">
+                <div class="scenario-title">
+                    <span class="scenario-badge badge-safety">Scenario B</span>
+                    副作用预警 (Safety Warning)
+                </div>
+                <div class="example-main-container">
+                    <div class="input-panel">
+                        <div class="data-card neutral">
+                            <div class="data-label">QUERY INPUT</div>
+                            <div class="data-val">Drug: Infliximab → Heart Failure</div>
+                            <div class="data-meta"><span>Target: TNF Gene</span><span>Action: Inhibitor</span></div>
+                        </div>
+                        <div class="arrow-divider">↓</div>
+                        <div class="data-card conflict">
+                            <div class="data-label">CEM EVIDENCE LOOKUP</div>
+                            <div class="data-val text-warn">Genetics: Protective Function</div>
+                            <div class="data-meta"><span>Beta > 0</span><span>TNF needed for repair</span></div>
+                        </div>
+                        <div class="arrow-divider">+</div>
+                        <div class="data-card conflict">
+                            <div class="data-label">RCT GROUND TRUTH</div>
+                            <div class="data-val" style="color:var(--brand-red)">Clinical: FAILED (Harmful)</div>
+                            <div class="data-meta"><span>ATTACH Trial</span><span>Outcome: Worsened HF</span></div>
+                        </div>
+                    </div>
+
+                    <div class="inference-panel">
+                        <div class="terminal-content">
+                            <span class="tag-think">&lt;think&gt;</span><br>
+                            <span class="text-thought">
+                                1. <strong>Analyze Hypothesis:</strong> "Anti-inflammation" (Anti-TNF) is theoretically good for Heart Failure.<br>
+                                2. <strong>Check World Model (CEM):</strong> Querying TNF levels vs Heart Function.<br>
+                                &nbsp;&nbsp;&nbsp;→ Evidence: Low TNF levels correlate with <span class="text-warn">poor myocardial recovery</span>.<br>
+                                &nbsp;&nbsp;&nbsp;→ Mechanism: TNF is pleiotropic; it is required for initial tissue repair and remodeling.<br>
+                                3. <strong>Prediction:</strong> Blocking TNF completely might hinder the heart's ability to repair itself.<br>
+                                4. <strong>Safety Flag:</strong> High risk of worsening condition despite the anti-inflammatory benefit.<br>
+                            </span>
+                            <span class="tag-think">&lt;/think&gt;</span>
+                            <div class="final-conclusion">
+                                <strong>预警：</strong>Causal-R1 预测失败。虽然抗炎理论很有吸引力，但因果证据显示 TNF 在心肌修复中起关键保护作用，完全阻断可能导致心衰恶化（与 ATTACH 试验结果一致）。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-wrapper">
+                <div class="scenario-title">
+                    <span class="scenario-badge badge-discovery">Scenario C</span>
+                    老药新用挖掘 (Drug Repurposing)
+                </div>
+                <div class="example-main-container">
+                    <div class="input-panel">
+                        <div class="data-card neutral">
+                            <div class="data-label">QUERY INPUT</div>
+                            <div class="data-val">Drug: Semaglutide → Alzheimer's</div>
+                            <div class="data-meta"><span>Target: GLP1R Gene</span><span>Action: Agonist</span></div>
+                        </div>
+                        <div class="arrow-divider">↓</div>
+                        <div class="data-card support">
+                            <div class="data-label">CEM EVIDENCE LOOKUP</div>
+                            <div class="data-val text-ok">Genetics: Significant Protection</div>
+                            <div class="data-meta"><span>P=2.3e-05</span><span>GLP1R var mimics drug</span></div>
+                        </div>
+                        <div class="arrow-divider">+</div>
+                        <div class="data-card prediction">
+                            <div class="data-label">MODEL PREDICTION</div>
+                            <div class="data-val" style="color:var(--brand-purple)">Prediction: HIGH SUCCESS</div>
+                            <div class="data-meta"><span>Confidence: 85%</span><span>Phase 3 Ongoing</span></div>
+                        </div>
+                    </div>
+
+                    <div class="inference-panel">
+                        <div class="terminal-content">
+                            <span class="tag-think">&lt;think&gt;</span><br>
+                            <span class="text-thought">
+                                1. <strong>Task:</strong> Assess potential of GLP-1 agonist for Alzheimer's Disease (AD).<br>
+                                2. <strong>Causal Check:</strong> Does GLP1R activation causally reduce AD risk?<br>
+                                &nbsp;&nbsp;&nbsp;→ CEM Result: <span class="text-ok">YES</span>. Genetic variants increasing GLP1R signaling show lower AD incidence.<br>
+                                3. <strong>Mechanism Link:</strong> GLP-1 receptors are expressed in the brain; involved in glucose metabolism and neuro-inflammation reduction.<br>
+                                4. <strong>Cross-Validation:</strong> Brain glucose hypometabolism is a hallmark of AD. Improving this pathway addresses a root cause.<br>
+                            </span>
+                            <span class="tag-think">&lt;/think&gt;</span>
+                            <div class="final-conclusion">
+                                <strong>发现：</strong>强推荐。遗传因果性强力支持（P=2.3e-05），且机制（脑能量代谢/神经炎症）与 AD 病理高度相关。这是一个极具潜力的老药新用方向。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
     <section class="proposal-section">
         <div class="content-wrapper">
             <div class="section-header">
@@ -620,6 +896,289 @@
 
         </div>
     </section>
+
+
+    <style>
+        .tasks-section {
+            background-color: #fafafa;
+            padding: 80px 0;
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .task-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 900px) { .task-detail-grid { grid-template-columns: 1fr; } }
+
+        .task-detail-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: transform 0.2s;
+        }
+
+        .task-detail-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--brand-blue);
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .task-icon-large {
+            width: 48px;
+            height: 48px;
+            background: #f5f5f7;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .task-info h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 4px; }
+        .task-info p { font-size: 0.85rem; color: var(--text-secondary); }
+
+        .example-box {
+            background: #f9f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.85rem;
+            color: #444;
+            line-height: 1.5;
+            border-left: 3px solid var(--brand-blue);
+        }
+        
+        .example-label {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        /* Metric Table */
+        .metric-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .metric-table th {
+            text-align: left;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .metric-table td {
+            padding: 8px 0;
+            border-bottom: 1px solid #f5f5f5;
+            color: var(--text-primary);
+        }
+
+        .metric-table tr:last-child td { border-bottom: none; }
+        
+        .baseline-tag {
+            display: inline-block;
+            background: #eee;
+            color: #666;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-right: 6px;
+        }
+        
+        .metric-name { font-weight: 600; }
+        .metric-val { font-family: monospace; }
+        
+        .eval-note {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-top: auto; /* Push to bottom */
+        }
+    </style>
+
+    <section class="tasks-section">
+        <div class="content-wrapper">
+            <div class="section-header">
+                <h2>Evaluation Benchmarks</h2>
+                <p>具体的下游任务、应用案例与对比评测指标</p>
+            </div>
+
+            <div class="task-detail-grid">
+
+                <div class="task-detail-card">
+                    <div class="task-header">
+                        <div class="task-icon-large">🎯</div>
+                        <div class="task-info">
+                            <h3>Task A: 临床成功率预测</h3>
+                            <p>Predicting Phase II/III Transition</p>
+                        </div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Example Scenario</span>
+                        <strong>输入：</strong>药物 "Infliximab" + 适应症 "Heart Failure" (历史失败案例)。<br>
+                        <strong>Causal-R1 行为：</strong>虽然抗炎理论成立，但 CEM 矩阵显示该通路在心衰中并不具备因果保护性（甚至有害），因此模型给出 <strong>Low Probability (Fail)</strong>。
+                    </div>
+                    <table class="metric-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Baselines</th>
+                                <th>Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="metric-name">AUROC / AUC</td>
+                                <td><span class="baseline-tag">ClinicalBERT</span> </td>
+                                <td class="metric-val" style="color:var(--brand-green); font-weight:bold;">> 0.80</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">F1-Score</td>
+                                <td><span class="baseline-tag">XGBoost</span> </td>
+                                <td class="metric-val" style="color:var(--brand-green); font-weight:bold;">> 0.72</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="eval-note">Why we win: Baselines 仅依赖文本相似度，我们引入了遗传因果作为强特征。</div>
+                </div>
+
+                <div class="task-detail-card">
+                    <div class="task-header">
+                        <div class="task-icon-large">⚠️</div>
+                        <div class="task-info">
+                            <h3>Task B: 副作用预警</h3>
+                            <p>Mechanism-based Safety Forecasting</p>
+                        </div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Example Scenario</span>
+                        <strong>输入：</strong>针对肝病的药物靶点 "Target X"。<br>
+                        <strong>Causal-R1 行为：</strong>CEM 矩阵发现 Target X 在 "Cardiac Rhythm" 表型上有显著因果效应（P &lt; 1e-8），模型生成警告：<strong>"Potential Risk of Arrhythmia" (心律失常风险)</strong>。
+                    </div>
+                    <table class="metric-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Baselines</th>
+                                <th>Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="metric-name">Recall @ Top-10</td>
+                                <td><span class="baseline-tag">SIDER Lookup</span> </td>
+                                <td class="metric-val" style="color:var(--brand-blue); font-weight:bold;">> 60%</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Precision</td>
+                                <td><span class="baseline-tag">DeepTox (GNN)</span> </td>
+                                <td class="metric-val" style="color:var(--brand-blue); font-weight:bold;">> 0.55</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="eval-note">Why we win: 传统方法基于化学结构，我们基于全基因组的生物学因果效应 (On-target effects)。</div>
+                </div>
+
+                <div class="task-detail-card">
+                    <div class="task-header">
+                        <div class="task-icon-large">⚖️</div>
+                        <div class="task-info">
+                            <h3>Task C: 矛盾证据调和</h3>
+                            <p>Reasoning Quality Evaluation</p>
+                        </div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Example Scenario</span>
+                        <strong>输入：</strong>"为什么遗传支持 CETP 靶点，但 Torcetrapib 临床失败？"<br>
+                        <strong>Causal-R1 行为：</strong>输出包含 "脱靶毒性" 和 "醛固酮升高" 的详细逻辑链。
+                    </div>
+                    <table class="metric-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Baselines</th>
+                                <th>Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="metric-name">GPT-4-Eval Score</td>
+                                <td><span class="baseline-tag">Llama-3 (Zero-shot)</span> </td>
+                                <td class="metric-val" style="color:var(--brand-purple); font-weight:bold;">> 4/5</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Human Eval</td>
+                                <td><span class="baseline-tag">Expert Review</span></td>
+                                <td class="metric-val" style="font-size:0.75rem;">Rank 1 vs Baselines</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="eval-note">Evaluation Method: 使用 GPT-4o 作为裁判，对模型生成的解释逻辑性、事实准确性进行 1-5 打分。</div>
+                </div>
+
+                <div class="task-detail-card">
+                    <div class="task-header">
+                        <div class="task-icon-large">💊</div>
+                        <div class="task-info">
+                            <h3>Task D: 老药新用挖掘</h3>
+                            <p>Hypothesis Generation</p>
+                        </div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Example Scenario</span>
+                        <strong>输入：</strong>药物 "Metformin"（二甲双胍）。<br>
+                        <strong>Causal-R1 行为：</strong>检索发现靶点 AMPK 显著降低 "Alzheimer's" 风险，推荐将 Metformin 用于 AD 预防，并引用相关遗传证据。
+                    </div>
+                    <table class="metric-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Baselines</th>
+                                <th>Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="metric-name">Hit Rate (Top-20)</td>
+                                <td><span class="baseline-tag">KG-Embed (RotatE)</span> </td>
+                                <td class="metric-val" style="color:var(--brand-orange); font-weight:bold;">> 25%</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Lit. Validation</td>
+                                <td><span class="baseline-tag">Random</span> </td>
+                                <td class="metric-val" style="color:var(--brand-orange); font-weight:bold;">High</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="eval-note">Ground Truth: 基于 ClinicalTrials.gov 上新注册的适应症或高分文献报道进行验证。</div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
 
     <section class="data-dashboard-section">
         <div class="content-wrapper">
