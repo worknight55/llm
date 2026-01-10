@@ -533,7 +533,7 @@
                     <circle cx="11" cy="11" r="8"></circle>
                     <path d="m21 21-4.35-4.35"></path>
                 </svg>
-                <input type="text" class="search-input" id="searchInput" placeholder="搜索问题关键词，如：血糖、HRV、睡眠、认知...">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索问题关键词，多个关键词用逗号分隔，如：血糖,HRV,睡眠">
                 <button class="search-clear" id="searchClear">&times;</button>
             </div>
             <div class="nav-tabs" id="navTabs">
@@ -580,11 +580,26 @@
         const loadMore = document.getElementById('loadMore');
         const backTop = document.getElementById('backTop');
         
-        // 高亮关键词
+        // 分割关键词（支持中英文逗号）
+        function splitKeywords(keyword) {
+            if (!keyword) return [];
+            // 同时支持英文逗号和中文逗号分割
+            return keyword.split(/[,，]/).map(k => k.trim()).filter(k => k.length > 0);
+        }
+        
+        // 高亮关键词（支持多关键词）
         function highlight(text, keyword) {
             if (!keyword) return text;
-            const regex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-            return text.replace(regex, '<mark>$1</mark>');
+            const keywords = splitKeywords(keyword);
+            if (keywords.length === 0) return text;
+            
+            // 为每个关键词创建正则表达式并高亮
+            let result = text;
+            keywords.forEach(k => {
+                const regex = new RegExp(`(${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                result = result.replace(regex, '<mark>$1</mark>');
+            });
+            return result;
         }
         
         // 渲染问题卡片
@@ -631,14 +646,25 @@
             loadMore.textContent = loadMore.disabled ? '已加载全部' : `加载更多（还有 ${filteredQuestions.length - displayCount} 个）`;
         }
         
-        // 筛选问题
+        // 筛选问题（支持多关键词搜索）
         function filterQuestions() {
             filteredQuestions = allQuestions.filter(q => {
                 const matchCategory = currentFilter === 'all' || q.category === currentFilter;
-                const matchKeyword = !searchKeyword || 
-                    q.question.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                    q.rationale.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                    q.fields.some(f => f.toLowerCase().includes(searchKeyword.toLowerCase()));
+                
+                // 多关键词搜索：用中英文逗号分隔，所有关键词都必须匹配
+                // 搜索范围仅限于问题本身（question）
+                let matchKeyword = true;
+                if (searchKeyword) {
+                    const keywords = splitKeywords(searchKeyword);
+                    if (keywords.length > 0) {
+                        // 检查所有关键词是否都在问题中
+                        matchKeyword = keywords.every(keyword => {
+                            const lowerKeyword = keyword.toLowerCase();
+                            return q.question.toLowerCase().includes(lowerKeyword);
+                        });
+                    }
+                }
+                
                 return matchCategory && matchKeyword;
             });
             displayCount = pageSize;
